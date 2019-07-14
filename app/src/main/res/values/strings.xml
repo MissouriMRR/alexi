@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+
+    <string name="app_name">PocketSphinx Demo</string>
+    <string name="button_connect">Connect</string>
+    <string name="kws_caption">To begin, say \"activate\".</string>
+    <string name="names_caption">Say a drone\'s name.</string>
+    <string name="command_caption">What would you like the drone to do?</string>
+    <string name="dur_caption">For how long?</string>
+    <string name="server_title">RabbitMQ Server IP:</string>
+    <string name="hostname_title">TCP Hostname:</string>
+    <string name="port_title">Server Port:</string>
+
+</resources>
