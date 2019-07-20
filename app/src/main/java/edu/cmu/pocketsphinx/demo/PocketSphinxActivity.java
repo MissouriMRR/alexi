@@ -34,31 +34,26 @@ import android.Manifest;
 import android.app.Activity;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.PorterDuff;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
-import android.util.Base64;
 import android.util.Log;
+import android.webkit.WebSettings;
+import android.webkit.WebView;
+import android.webkit.WebViewClient;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
-
-import com.rabbitmq.client.Channel;
-import com.rabbitmq.client.Connection;
-import com.rabbitmq.client.ConnectionFactory;
-import com.rabbitmq.client.DeliverCallback;
+import android.widget.ViewFlipper;
 
 import java.io.File;
 import java.io.IOException;
 import java.lang.ref.WeakReference;
 import java.util.HashMap;
-import java.util.concurrent.TimeoutException;
 
 import edu.cmu.pocketsphinx.Assets;
 import edu.cmu.pocketsphinx.Hypothesis;
@@ -84,7 +79,6 @@ public class PocketSphinxActivity extends Activity implements
     public int ctr = 0;
     public byte[] bt;
     public Bitmap bit;
-    public String RabbitHOST = "10.0.2.2";
     public String IP;
     public int PORT;
     public String NAME;
@@ -94,26 +88,24 @@ public class PocketSphinxActivity extends Activity implements
     private SpeechRecognizer recognizer;
     private HashMap<String, Integer> captions;
 
-    public void decodeMsg(byte[] body, ImageView image) {
-        if (ctr == 1) {
-            bt = Base64.decode(body, Base64.DEFAULT);
-            bit = BitmapFactory.decodeByteArray(bt, 0, bt.length);
-            runOnUiThread(() -> image.setImageBitmap(bit));
-            ctr = 0;
-        } else {
-            ctr++;
-        }
-        return;
-    }
+
+    String msg;
+    String httpLiveUrl = "http://192.168.1.127:8090/str1.mpg";
+    WebView webView;
+    TextView textView;
 
     @Override
     public void onCreate(Bundle state) {
         super.onCreate(state);
+        setContentView(R.layout.main);
 
-        DeliverCallback deliverCallback = (consumerTag, delivery) -> {
-            ImageView image = findViewById(R.id.image);
-            decodeMsg(delivery.getBody(), image);
-        };
+        webView = findViewById(R.id.webView1);
+        textView = findViewById(R.id.pinNumber);
+
+        WebSettings webSetting = webView.getSettings();
+        webSetting.setBuiltInZoomControls(true);
+        webView.setWebViewClient(new WebViewClient());
+
 
         // Prepare the data for UI
         captions = new HashMap<>();
@@ -121,7 +113,6 @@ public class PocketSphinxActivity extends Activity implements
         captions.put(NAMES_SEARCH, R.string.names_caption);
         captions.put(COMMAND_SEARCH, R.string.command_caption);
         captions.put(DUR_SEARCH, R.string.dur_caption);
-        setContentView(R.layout.main);
         ((TextView) findViewById(R.id.caption_text))
                 .setText("Preparing the recognizer");
 
@@ -137,41 +128,39 @@ public class PocketSphinxActivity extends Activity implements
         new SetupTask(this).execute();
 
 
-        //postRequest(postUrl, postBody);
-        //if (mTCPClient != null) {
-        //    mTCPClient.sendMessage(postBody);
-        //}
+        ViewFlipper mViewFlipper = this.findViewById(R.id.view_flipper);
 
-        Button button = findViewById(R.id.button_connect);
-        button.setOnClickListener(v -> {
+        Button switchToMenuButton = findViewById(R.id.buttonSwitchToMenu);
+        switchToMenuButton.setOnClickListener(v -> mViewFlipper.showNext());
+
+        Button switchToMainButton = findViewById(R.id.buttonSwitchToMain);
+        switchToMainButton.setOnClickListener(v -> mViewFlipper.showNext());
+
+
+        Button connectButton = findViewById(R.id.button_connect);
+        connectButton.setOnClickListener(v -> {
             Button button_connect = findViewById(R.id.button_connect);
             EditText serverBox = findViewById(R.id.serverBox);
             EditText portBox = findViewById(R.id.portBox);
-            EditText rabbitHOST = findViewById(R.id.RabbitHostBox);
+            EditText httpBox = findViewById(R.id.httpBox);
 
             IP = serverBox.getText().toString();
             PORT = Integer.parseInt(portBox.getText().toString());
-            //new ConnectTask().execute("");
-
-            RabbitHOST = rabbitHOST.getText().toString();
-            //new SetupVid(this).execute(deliverCallback);
+            httpLiveUrl = httpBox.getText().toString();
 
             RunConnections();
+
 
             button_connect.getBackground().setColorFilter(ContextCompat.getColor(this, R.color.Green), PorterDuff.Mode.MULTIPLY);
         });
 
-
-        //new SetupVid(this).execute(deliverCallback);
     }
 
-    public void RunConnections() {
-        DeliverCallback deliverCallback = (consumerTag, delivery) -> {
-            ImageView image = findViewById(R.id.image);
-            decodeMsg(delivery.getBody(), image);
-        };
 
-        new SetupVid(this).execute(deliverCallback);
+    public void RunConnections() {
+        //Video connection
+        webView.loadUrl(httpLiveUrl);
+        //TCP connection
         new ConnectTask().execute("");
     }
 
@@ -219,8 +208,8 @@ public class PocketSphinxActivity extends Activity implements
         if (text.equals(KEYPHRASE))
             switchSearch(NAMES_SEARCH);
         else if (text.equals("mike ")
-                || text.equals("rick")
-                || text.equals("bingo")) {
+                || text.equals("rick ")
+                || text.equals("bingo ")) {
             NAME = text;
             switchSearch(COMMAND_SEARCH);
         } else if (text.equals("forward ")
@@ -237,6 +226,7 @@ public class PocketSphinxActivity extends Activity implements
                 || text.equals("two ")
                 || text.equals("three ")) {
             DUR = text;
+            sendMsg();
             switchSearch(KWS_SEARCH);
         } else {
             NAME = null;
@@ -246,16 +236,15 @@ public class PocketSphinxActivity extends Activity implements
         }
     }
 
-    /**
-     * This callback is called when we stop the recognizer.
-     */
-    @Override
-    public void onResult(Hypothesis hypothesis) {
+/**~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~CREATE OUTGOING BELOW~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+*~~~~~~~~~~~(i figure we make a JSON object and stringify it somewhere here?~~~~~~~~~~~~~~~
+*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+    public void sendMsg() {
         if (mTCPClient != null) {
             ((TextView) findViewById(R.id.result_text)).setText("");
-
-            String msg;
-
+            
             if (NAME != null && COMMAND != null && DUR != null)
                 msg = NAME.concat(COMMAND).concat(DUR);
             else
@@ -270,6 +259,14 @@ public class PocketSphinxActivity extends Activity implements
                 DUR = null;
             }
         }
+    }
+    /**
+     * This callback is called when we stop the recognizer.
+     */
+
+    @Override
+    public void onResult(Hypothesis hypothesis) {
+
     }
 
     @Override
@@ -366,45 +363,6 @@ public class PocketSphinxActivity extends Activity implements
         }
     }
 
-    //Sets up the connection to rabbitMQ for pulling images and begins the basicConsume function
-    private class SetupVid extends AsyncTask<DeliverCallback, Void, Channel> {
-        WeakReference<PocketSphinxActivity> activityReference;
-
-        SetupVid(PocketSphinxActivity activity) {
-            this.activityReference = new WeakReference<>(activity);
-        }
-
-        @Override
-        protected Channel doInBackground(DeliverCallback... deliverCallback) {
-
-            ConnectionFactory factory = new ConnectionFactory();
-            factory.setHost(RabbitHOST);
-            factory.setPort(5672);
-            factory.setVirtualHost("/");
-            factory.setUsername("jimmy");
-            factory.setPassword("johns");
-
-            Channel channel = null;
-            try {
-                Connection connection = factory.newConnection();
-                channel = connection.createChannel();
-                channel.basicQos(1);
-
-                channel.basicConsume(QUEUE_NAME, true, deliverCallback[0], consumerTag -> {
-                });
-
-            } catch (TimeoutException | IOException e) {
-                e.printStackTrace();
-                Log.d("CONN", "exception thrown");
-            }
-            return channel;
-        }
-
-        @Override
-        protected void onPostExecute(Channel channel) {
-        }
-    }
-
     //Establishes TCP client connection
     public class ConnectTask extends AsyncTask<String, String, TCPClient> {
 
@@ -421,14 +379,22 @@ public class PocketSphinxActivity extends Activity implements
 
             return null;
         }
-
+/**~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~PROCESS RESPONSE BELOW~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
         @Override
         protected void onProgressUpdate(String... values) {
             super.onProgressUpdate(values);
             //response received from server
             Log.d("test", "response " + values[0]);
             //process server response here....
-
+            if(values[0] != "0") {
+                //set pin here
+                textView.setText(values[0]);
+            }
         }
     }
 }
+

@@ -1,94 +1,156 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:orientation="vertical"
-    android:padding="16dp">
+    android:layout_height="match_parent"
+    app:layout_behavior="@string/appbar_scrolling_view_behavior"
+    tools:showIn="@layout/main">
 
-    <TextView
-        android:id="@+id/caption_text"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal"
-        android:textAppearance="?android:attr/textAppearanceLarge"
-        android:typeface="sans" />
+    <ViewFlipper
+        android:id="@+id/view_flipper"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent">
 
-    <TextView
-        android:id="@+id/result_text"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceMedium" />
-
-    <TextView
-        android:id="@+id/TCPIPTitle"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/hostname_title"
-        tools:text="@string/hostname_title" />
-
-    <EditText
-        android:id="@+id/serverBox"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:ems="10"
-        android:hint="Enter TCP IP..."
-        android:inputType="text" />
-
-    <TextView
-        android:id="@+id/TCPPortTitle"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/port_title"
-        tools:text="@string/port_title" />
-
-    <EditText
-        android:id="@+id/portBox"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:ems="10"
-        android:hint="Enter TCP Port..."
-        android:inputType="number" />
-
-    <TextView
-        android:id="@+id/RabbitHostTitle"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/server_title"
-        tools:text="@string/server_title" />
-
-    <EditText
-        android:id="@+id/RabbitHostBox"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:ems="10"
-        android:hint="Enter RabbitHostIP..."
-        android:inputType="text" />
-
-    <Button
-        android:id="@+id/button_connect"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:onClick="buttonConnect"
-        android:text="@string/button_connect" />
-
-    <android.support.constraint.ConstraintLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
-
-        <ImageView
-            android:id="@+id/image"
+        <RelativeLayout
+            android:id="@+id/mainLayout"
             android:layout_width="match_parent"
-            android:layout_height="200dp"
-            android:layout_marginTop="16dp"
-            android:adjustViewBounds="false"
-            android:cropToPadding="false"
-            android:scaleType="fitCenter"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
-    </android.support.constraint.ConstraintLayout>
+            android:layout_height="match_parent">
 
-</LinearLayout>
+            <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                xmlns:app="http://schemas.android.com/apk/res-auto"
+                xmlns:tools="http://schemas.android.com/tools"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="16dp">
 
+                <TextView
+                    android:id="@+id/caption_text"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_horizontal"
+                    android:textAppearance="?android:attr/textAppearanceLarge"
+                    android:typeface="sans" />
+
+                <TextView
+                    android:id="@+id/result_text"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="RESULT"
+                    android:textAppearance="?android:attr/textAppearanceMedium" />
+
+                <android.support.constraint.ConstraintLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent">
+
+                    <WebView
+                        android:id="@+id/webView1"
+                        android:layout_width="640dp"
+                        android:layout_height="480dp"
+                        android:layout_centerHorizontal="true"
+                        android:layout_marginTop="40dp"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent" />
+
+                </android.support.constraint.ConstraintLayout>
+
+                <TextView
+                    android:id="@+id/pinTitle"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/pin_title"
+                    tools:text="@string/pin_title" />
+
+                <TextView
+                    android:id="@+id/pinNumber"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="****" />
+
+                <Button
+                    android:id="@+id/buttonSwitchToMenu"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:onClick="switchToMenuButton"
+                    android:text="Button" />
+
+            </LinearLayout>
+
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:id="@+id/menuLayout"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/TCPIPTitle"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/hostname_title"
+                    tools:text="@string/hostname_title" />
+
+                <EditText
+                    android:id="@+id/serverBox"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:ems="10"
+                    android:hint="Enter TCP IP..."
+                    android:inputType="text" />
+
+                <TextView
+                    android:id="@+id/TCPPortTitle"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/port_title"
+                    tools:text="@string/port_title" />
+
+                <EditText
+                    android:id="@+id/portBox"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:ems="10"
+                    android:hint="Enter TCP Port..."
+                    android:inputType="number" />
+
+                <TextView
+                    android:id="@+id/httpTitle"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/server_title"
+                    tools:text="@string/server_title" />
+
+                <EditText
+                    android:id="@+id/httpBox"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:ems="10"
+                    android:hint="Enter HTTP URL..."
+                    android:inputType="text" />
+
+                <Button
+                    android:id="@+id/button_connect"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:onClick="buttonConnect"
+                    android:text="@string/button_connect" />
+
+                <Button
+                    android:id="@+id/buttonSwitchToMain"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:onClick="switchToMainButton"
+                    android:text="Button" />
+            </LinearLayout>
+
+        </RelativeLayout>
+    </ViewFlipper>
+
+</RelativeLayout>

@@ -7,8 +7,9 @@
     <string name="names_caption">Say a drone\'s name.</string>
     <string name="command_caption">What would you like the drone to do?</string>
     <string name="dur_caption">For how long?</string>
-    <string name="server_title">RabbitMQ Server IP:</string>
+    <string name="server_title">HTTP Server URL:</string>
     <string name="hostname_title">TCP Hostname:</string>
     <string name="port_title">Server Port:</string>
+    <string name="pin_title">PIN:</string>
 
 </resources>
