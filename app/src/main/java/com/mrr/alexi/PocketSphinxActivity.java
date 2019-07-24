@@ -28,7 +28,7 @@
  * ====================================================================
  */
 
-package edu.cmu.pocketsphinx.demo;
+package com.mrr.alexi;
 
 import android.Manifest;
 import android.app.Activity;
@@ -90,7 +90,7 @@ public class PocketSphinxActivity extends Activity implements
 
 
     String msg;
-    String httpLiveUrl = "http://192.168.1.127:8090/str1.mpg";
+    String httpLiveUrl = "http://192.168.0.13:8090/str1.mpg";
     WebView webView;
     TextView textView;
 
@@ -100,6 +100,12 @@ public class PocketSphinxActivity extends Activity implements
         setContentView(R.layout.main);
 
         webView = findViewById(R.id.webView1);
+        webView.setWebViewClient(new WebViewClient());
+        webView.getSettings().setJavaScriptEnabled(true);
+        webView.getSettings().setDomStorageEnabled(true);
+        webView.setOverScrollMode(WebView.OVER_SCROLL_NEVER);
+        webView.loadUrl(httpLiveUrl);
+
         textView = findViewById(R.id.pinNumber);
 
         WebSettings webSetting = webView.getSettings();
@@ -159,9 +165,9 @@ public class PocketSphinxActivity extends Activity implements
 
     public void RunConnections() {
         //Video connection
-        webView.loadUrl(httpLiveUrl);
+        //webView.loadUrl(httpLiveUrl);
         //TCP connection
-        new ConnectTask().execute("");
+        //new ConnectTask().execute("");
     }
 
     @Override

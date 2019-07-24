@@ -1,4 +1,4 @@
-package edu.cmu.pocketsphinx.demo;
+package com.mrr.alexi;
 
 import android.util.Log;
 
