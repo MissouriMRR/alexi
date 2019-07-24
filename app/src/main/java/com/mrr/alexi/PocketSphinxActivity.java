@@ -33,7 +33,6 @@ package com.mrr.alexi;
 import android.Manifest;
 import android.app.Activity;
 import android.content.pm.PackageManager;
-import android.graphics.Bitmap;
 import android.graphics.PorterDuff;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -66,7 +65,6 @@ import static android.widget.Toast.makeText;
 public class PocketSphinxActivity extends Activity implements
         RecognitionListener {
 
-    private final static String QUEUE_NAME = "image-queue";
     /* Named searches allow to quickly reconfigure the decoder */
     private static final String KWS_SEARCH = "wakeup";
     private static final String NAMES_SEARCH = "name";
@@ -76,9 +74,6 @@ public class PocketSphinxActivity extends Activity implements
     private static final String KEYPHRASE = "activate";
     /* Used to handle permission request */
     private static final int PERMISSIONS_REQUEST_RECORD_AUDIO = 1;
-    public int ctr = 0;
-    public byte[] bt;
-    public Bitmap bit;
     public String IP;
     public int PORT;
     public String NAME;
