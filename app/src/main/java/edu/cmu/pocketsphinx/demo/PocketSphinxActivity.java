@@ -244,7 +244,7 @@ public class PocketSphinxActivity extends Activity implements
     public void sendMsg() {
         if (mTCPClient != null) {
             ((TextView) findViewById(R.id.result_text)).setText("");
-            
+
             if (NAME != null && COMMAND != null && DUR != null)
                 msg = NAME.concat(COMMAND).concat(DUR);
             else
