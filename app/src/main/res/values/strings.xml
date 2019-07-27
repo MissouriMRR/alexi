@@ -6,6 +6,7 @@
     <string name="kws_caption">To begin, say \"activate\".</string>
     <string name="names_caption">Say a drone\'s name.</string>
     <string name="command_caption">What would you like the drone to do?</string>
+    <string name="dir_caption">In which direction?(Only if cmd is "move", else say "none")</string>
     <string name="dur_caption">For how long?</string>
     <string name="server_title">HTTP Server URL:</string>
     <string name="hostname_title">TCP Hostname:</string>

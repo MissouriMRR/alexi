@@ -13,7 +13,7 @@ import java.net.Socket;
 public class TCPClient {
 
     public static final String TAG = TCPClient.class.getSimpleName();
-    public static final String SERVER_IP = "192.168.2.3"; //server IP address
+    public static final String SERVER_IP = "127.0.0.1"; //server IP address
     public static final int SERVER_PORT = 10000;
     // message to send to the server
     private String mServerMessage;

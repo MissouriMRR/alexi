@@ -69,6 +69,7 @@ public class PocketSphinxActivity extends Activity implements
     private static final String KWS_SEARCH = "wakeup";
     private static final String NAMES_SEARCH = "name";
     private static final String COMMAND_SEARCH = "command";
+    private static final String DIR_SEARCH = "direction";
     private static final String DUR_SEARCH = "duration";
     /* Keyword we are looking for to activate menu */
     private static final String KEYPHRASE = "activate";
@@ -79,7 +80,8 @@ public class PocketSphinxActivity extends Activity implements
     public String NAME;
     public String COMMAND;
     public String DUR;
-    TCPClient mTCPClient;
+    public String DIR;
+    public TCPClient mTCPClient;
     private SpeechRecognizer recognizer;
     private HashMap<String, Integer> captions;
 
@@ -99,7 +101,6 @@ public class PocketSphinxActivity extends Activity implements
         webView.getSettings().setJavaScriptEnabled(true);
         webView.getSettings().setDomStorageEnabled(true);
         webView.setOverScrollMode(WebView.OVER_SCROLL_NEVER);
-        webView.loadUrl(httpLiveUrl);
 
         textView = findViewById(R.id.pinNumber);
 
@@ -113,6 +114,7 @@ public class PocketSphinxActivity extends Activity implements
         captions.put(KWS_SEARCH, R.string.kws_caption);
         captions.put(NAMES_SEARCH, R.string.names_caption);
         captions.put(COMMAND_SEARCH, R.string.command_caption);
+        captions.put(DIR_SEARCH, R.string.dir_caption);
         captions.put(DUR_SEARCH, R.string.dur_caption);
         ((TextView) findViewById(R.id.caption_text))
                 .setText("Preparing the recognizer");
@@ -150,8 +152,6 @@ public class PocketSphinxActivity extends Activity implements
             httpLiveUrl = httpBox.getText().toString();
 
             RunConnections();
-
-
             button_connect.getBackground().setColorFilter(ContextCompat.getColor(this, R.color.Green), PorterDuff.Mode.MULTIPLY);
         });
 
@@ -160,9 +160,10 @@ public class PocketSphinxActivity extends Activity implements
 
     public void RunConnections() {
         //Video connection
-        //webView.loadUrl(httpLiveUrl);
+        webView.loadUrl(httpLiveUrl);
         //TCP connection
-        //new ConnectTask().execute("");
+        new ConnectTask().execute("");
+        sendMsg();
     }
 
     @Override
@@ -213,26 +214,30 @@ public class PocketSphinxActivity extends Activity implements
                 || text.equals("bingo ")) {
             NAME = text;
             switchSearch(COMMAND_SEARCH);
+        } else if (text.equals("move ")
+                || text.equals("land ")
+                || text.equals("takeoff ")
+                || text.equals("heal ")) {
+            COMMAND = text;
+            switchSearch(DIR_SEARCH);
         } else if (text.equals("forward ")
                 || text.equals("backward ")
                 || text.equals("left ")
                 || text.equals("right ")
-                || text.equals("land ")
-                || text.equals("stop ")
-                || text.equals("takeoff ")
-                || text.equals("heal ")) {
-            COMMAND = text;
-            switchSearch(DUR_SEARCH);
+                || text.equals("up ")
+                || text.equals("down ")) {
+                DIR = text;
         } else if (text.equals("one ")
                 || text.equals("two ")
-                || text.equals("three ")) {
+                || text.equals("three ")
+                || text.equals("four ")) {
             DUR = text;
             sendMsg();
             switchSearch(KWS_SEARCH);
         } else {
             NAME = null;
             COMMAND = null;
-            DUR = null;
+            DIR = null;
             switchSearch(KWS_SEARCH);
         }
     }
@@ -246,10 +251,9 @@ public class PocketSphinxActivity extends Activity implements
         if (mTCPClient != null) {
             ((TextView) findViewById(R.id.result_text)).setText("");
 
-            if (NAME != null && COMMAND != null && DUR != null)
-                msg = NAME.concat(COMMAND).concat(DUR);
-            else
-                msg = null;
+            mTCPClient.sendMessage("HELLO SUCCESSYAY");
+
+
 
             if (msg != null) {
                 makeText(getApplicationContext(), msg, Toast.LENGTH_SHORT).show();
@@ -257,7 +261,7 @@ public class PocketSphinxActivity extends Activity implements
                 mTCPClient.sendMessage(msg);
                 NAME = null;
                 COMMAND = null;
-                DUR = null;
+                DIR = null;
             }
         }
     }
@@ -318,6 +322,9 @@ public class PocketSphinxActivity extends Activity implements
         File COMMANDS_GRAM = new File(assetsDir, "commands.gram");
         recognizer.addKeywordSearch(COMMAND_SEARCH, COMMANDS_GRAM);
 
+        File DIR_GRAM = new File(assetsDir, "dir.gram");
+        recognizer.addKeywordSearch(DIR_SEARCH, DIR_GRAM);
+
         File DUR_GRAM = new File(assetsDir, "dur.gram");
         recognizer.addKeywordSearch(DUR_SEARCH, DUR_GRAM);
     }
@@ -372,12 +379,9 @@ public class PocketSphinxActivity extends Activity implements
 
             //we create a TCPClient object
             //here the messageReceived method is implemented
-            mTCPClient = new TCPClient(message1 -> {
-                //this method calls the onProgressUpdate
-                publishProgress(message1);
-            });
+            //this method calls the onProgressUpdate
+            mTCPClient = new TCPClient(this::publishProgress);
             mTCPClient.run(IP, PORT);
-
             return null;
         }
 /**~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
